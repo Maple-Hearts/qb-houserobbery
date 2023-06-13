@@ -68,11 +68,13 @@ RegisterNetEvent('qb-houserobbery:server:searchCabin', function(cabin, house)
                 itemInfo = QBCore.Shared.Items[randomItem]
                 Player.Functions.AddItem(randomItem, 2)
                 TriggerClientEvent('inventory:client:ItemBox', src, itemInfo, "add")
+                TriggerEvent('qb-log:server:CreateLog', 'ChangeMe', 'House Robbery', 'yellow', '**Name:** ' .. GetPlayerName(src) .. '\n **License:** ||(' .. Player.PlayerData.license .. ')||\n **Info:** Robbed (House Furniture) and recieved ' ..randomItem)
             elseif math.random(1, 100) == 35 then
                 randomItem = "weed_og-kush_seed"
                 itemInfo = QBCore.Shared.Items[randomItem]
                 Player.Functions.AddItem(randomItem, 1)
                 TriggerClientEvent('inventory:client:ItemBox', src, itemInfo, "add")
+                TriggerEvent('qb-log:server:CreateLog', 'ChangeMe', 'House Robbery', 'yellow', '**Name:** ' .. GetPlayerName(src) .. '\n **License:** ||(' .. Player.PlayerData.license .. ')||\n **Info:** Robbed (House Furniture) and recieved ' ..randomItem)
             else
                 if not itemInfo["unique"] then
                     local itemAmount = math.random(1, 3)
@@ -84,18 +86,17 @@ RegisterNetEvent('qb-houserobbery:server:searchCabin', function(cabin, house)
                         itemAmount = math.random(1, 3)
                     elseif randomItem == "weed_skunk" then
                         itemAmount = math.random(1, 6)
-                    elseif randomItem == "cryptostick" then
-                        itemAmount = math.random(1, 2)
                     end
 
                     Player.Functions.AddItem(randomItem, itemAmount)
+                    TriggerEvent('qb-log:server:CreateLog', 'ChangeMe', 'House Robbery', 'yellow', '**Name:** ' .. GetPlayerName(src) .. '\n **License:** ||(' .. Player.PlayerData.license .. ')||\n **Info:** Robbed (House Furniture) and recieved ' .. itemAmount .. ' ' .. randomItem)
                 else
                     Player.Functions.AddItem(randomItem, 1)
+                    TriggerEvent('qb-log:server:CreateLog', 'ChangeMe', 'House Robbery', 'yellow', '**Name:** ' .. GetPlayerName(src) .. '\n **License:** ||(' .. Player.PlayerData.license .. ')||\n **Info:** Robbed (House Furniture) and recieved ' ..randomItem)
                 end
                 TriggerClientEvent('inventory:client:ItemBox', src, itemInfo, "add")
             end
             Wait(500)
-            -- local weaponChance = math.random(1, 100)
         end
     else
         TriggerClientEvent('QBCore:Notify', src, Lang:t("error.emty_box"), 'error')

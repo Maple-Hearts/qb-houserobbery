@@ -82,12 +82,12 @@ local function leaveRobberyHouse(house)
 end
 
 local function PoliceCall()
-    local chance = 75
+    local chance = 60
     if GetClockHours() >= 1 and GetClockHours() <= 6 then
-        chance = 25
+        chance = 40
     end
     if math.random(1, 100) <= chance then
-        TriggerServerEvent('police:server:policeAlert', 'Attempted House Robbery')
+        exports['ps-dispatch']:HouseRobbery()
     end
 end
 
@@ -235,8 +235,12 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                 if CurrentCops >= Config.MinimumHouseRobberyPolice then
                     if not Config.Houses[closestHouse]["opened"] then
                         PoliceCall()
-                        TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
-                        if math.random(1, 100) <= 85 and not IsWearingGloves() then
+                        exports['ps-ui']:Circle(function(success)
+                            if success then
+                                lockpickFinish(success)
+                            end
+                        end, 4, 15)
+                        if math.random(1, 100) <= 85 and not IsWearingHandshoes() then
                             local pos = GetEntityCoords(PlayerPedId())
                             TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
                         end
@@ -248,27 +252,32 @@ RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
                 end
             end
         else
-            local result = QBCore.Functions.HasItem("screwdriverset")
-            if closestHouse ~= nil then
-                if result then
-                    if CurrentCops >= Config.MinimumHouseRobberyPolice then
-                        if not Config.Houses[closestHouse]["opened"] then
-                            PoliceCall()
-                            TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
-                            if math.random(1, 100) <= 85 and not IsWearingGloves() then
-                                local pos = GetEntityCoords(PlayerPedId())
-                                TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+            QBCore.Functions.TriggerCallback('QBCore:HasItem', function(result)
+                if closestHouse ~= nil then
+                    if result then
+                        if CurrentCops >= Config.MinimumHouseRobberyPolice then
+                            if not Config.Houses[closestHouse]["opened"] then
+                                PoliceCall()
+                                exports['ps-ui']:Circle(function(success)
+                                    if success then
+                                        lockpickFinish(success)
+                                    end
+                                end, 4, 15)
+                                if math.random(1, 100) <= 85 and not IsWearingHandshoes() then
+                                    local pos = GetEntityCoords(PlayerPedId())
+                                    TriggerServerEvent("evidence:server:CreateFingerDrop", pos)
+                                end
+                            else
+                                QBCore.Functions.Notify(Lang:t("error.door_open"), "error", 3500)
                             end
                         else
-                            QBCore.Functions.Notify(Lang:t("error.door_open"), "error", 3500)
+                            QBCore.Functions.Notify(Lang:t("error.not_enough_police"), "error", 3500)
                         end
                     else
-                        QBCore.Functions.Notify(Lang:t("error.not_enough_police"), "error", 3500)
+                        QBCore.Functions.Notify(Lang:t("error.missing_something"), "error", 3500)
                     end
-                else
-                    QBCore.Functions.Notify(Lang:t("error.missing_something"), "error", 3500)
                 end
-            end
+            end, "screwdriverset")
         end
     end
 end)
